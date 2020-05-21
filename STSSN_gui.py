@@ -1,5 +1,5 @@
 from pathlib import Path
-from toolbox import Toolbox
+from STSSN_toolbox import Toolbox
 from utils.argutils import print_args
 import argparse
 import sys
