@@ -7,9 +7,13 @@
     pip install requirements.txt
     ```
 * Install pytorch (needs to be CUDA enabled)
+* Create a jupyter notebook kernel for this environment (make sure virtual environment is active)
+    ```
+    ipython3 kernel install --user --name=STSSN
+    ```
 * Download [pretrained models] and place "saved_models" folders into synthesizer/encoder/vocoder directories
 * Download [LibriSpeech Dataset](http://www.openslr.org/resources/12/train-clean-100.tar.gz), unzip into <datasets_root>
-* Run toolbox script
+* Run toolbox script for interactive gui, or one of the other script options (most streamlined is through STSSN_inference notebook)
     ```python
     python demo_toolbox.py -d <datasets_root>
     ```
