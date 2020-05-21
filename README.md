@@ -1,7 +1,6 @@
 # Speech-To-Speech-Synthesis
 
 ## Set Up:
-* Clone using -r flag to initialize submodule
 * Create virtual environment w/ Python 3.7 (3.8 does NOT work)
 * Install requirements (Note: I was using my mac and could not get tensorflow-gpu, try tensorflow==1.14 if not working)
     ```
