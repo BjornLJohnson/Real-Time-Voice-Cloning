@@ -2,7 +2,6 @@
 # coding: utf-8
 
 # # Building an end-to-end Speech Recognition model in PyTorch - [AssemblyAI](https://www.assemblyai.com/)
-import os
 import torch
 import torchaudio
 import torch.nn as nn
@@ -380,14 +379,25 @@ def GreedyDecoder(output, labels, label_lengths, blank_label=28, collapse_repeat
         decodes.append(text_transform.int_to_text(decode))
     return decodes, targets
 
-
+def GreedyDecoderInference(output, blank_label=28, collapse_repeated=True):
+    arg_maxes = torch.argmax(output, dim=2)
+    decodes = []
+    for i, args in enumerate(arg_maxes):
+        decode = []
+        for j, index in enumerate(args):
+            if index != blank_label:
+                if collapse_repeated and j != 0 and index == args[j -1]:
+                    continue
+                decode.append(index.item())
+        decodes.append(text_transform.int_to_text(decode))
+    return decodes
 
 def train(model, device, train_loader, criterion, optimizer, scheduler, epoch):
     model.train()
     data_len = len(train_loader.dataset)
     for batch_idx, _data in enumerate(train_loader):
         torch.cuda.empty_cache()
-        spectrograms, labels, input_lengths, label_lengths = _data 
+        spectrograms, labels, input_lengths, label_lengths = _data
         spectrograms, labels = spectrograms.to(device), labels.to(device)
 
         optimizer.zero_grad()
@@ -419,6 +429,7 @@ def test(model, device, test_loader, criterion, epoch):
             spectrograms, labels = spectrograms.to(device), labels.to(device)
 
             output = model(spectrograms)  # (batch, time, n_class)
+            print(output.shape)
             output = F.log_softmax(output, dim=2)
             output = output.transpose(0, 1) # (time, batch, n_class)
 
