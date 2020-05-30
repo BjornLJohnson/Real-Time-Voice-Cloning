@@ -12,7 +12,7 @@ _hparams = None
 _device = None
 _use_cuda = None
 
-def load_model(model_path=None):
+def load_model(model_path=None, save_model_path=None, batch_size=8):
     global _model, _device, _hparams, _use_cuda
     _use_cuda = torch.cuda.is_available()
     _device = torch.device("cuda" if _use_cuda else "cpu")
@@ -27,8 +27,9 @@ def load_model(model_path=None):
         "stride":2,
         "dropout": 0.1,
         "learning_rate": 5e-4,
-        "batch_size": 8,
-        "epochs": 10
+        "batch_size": batch_size,
+        "epochs": 10,
+        "save_model_path": save_model_path
     }
 
     _model = ds.SpeechRecognitionModel(
@@ -81,9 +82,9 @@ def train():
                                             anneal_strategy='linear')
 
     for epoch in range(1, _hparams['epochs'] + 1):
-#         ds.train(_model, _device, train_loader, criterion, optimizer, scheduler, epoch)
+        ds.train(_model, _device, train_loader, criterion, optimizer, scheduler, epoch)
         ds.test(_model, _device, test_loader, criterion, epoch)
-        torch.save(_model.state_dict(), "saved_models/deepspeech3.pt")
+        torch.save(_model.state_dict(), _hparams['save_model_path'])
 
 def generate_text(input_file_path):
     global _model, _device, _hparams, _use_cuda
@@ -92,30 +93,13 @@ def generate_text(input_file_path):
         raise Exception("Model was not loaded, call load_model() before inference")
 
     waveform, sample_rate = torchaudio.load(input_file_path, normalization=True)
-    mel_specgram = torchaudio.transforms.MelSpectrogram(sample_rate)(waveform)  # (channel, n_mels, time)
-    
-    mel_specgram =  [mel_specgram.squeeze(0).transpose(0, 1)]
-    
-    input_layer = nn.utils.rnn.pad_sequence(mel_specgram, batch_first=True).unsqueeze(1).transpose(2, 3).to(_device)
-#     ds.data_processing(input_file_path, 'infer_single')
+    input_data = [[waveform, None, None, None, None, None]]
+    input_layer = ds.data_processing(input_data, 'infer')
 
     _model.eval()
-    output=_model(input_layer)
-    print(output.shape)
+    output=_model(input_layer[0].to(_device))
     output = F.log_softmax(output, dim=2)
     
     return str(ds.GreedyDecoderInference(output))
-
-#     optimizer = optim.AdamW(_model.parameters(), _hparams['learning_rate'])
-#     criterion = nn.CTCLoss(blank=28).to(_device)
-#     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=_hparams['learning_rate'], 
-#                                             steps_per_epoch=int(len(train_loader)),
-#                                             epochs=_hparams['epochs'],
-#                                             anneal_strategy='linear')
-
-#     for epoch in range(1, _hparams['epochs'] + 1):
-#         ds.train(_model, _device, train_loader, criterion, optimizer, scheduler, epoch)
-#         ds.test(_model, _device, test_loader, criterion, epoch)
-#         torch.save(_model.state_dict(), "saved_models/deepspeech3.pt")
 
 
