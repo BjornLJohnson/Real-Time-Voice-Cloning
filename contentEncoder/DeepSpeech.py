@@ -440,7 +440,6 @@ def test(model, device, test_loader, criterion, epoch):
             spectrograms, labels = spectrograms.to(device), labels.to(device)
 
             output = model(spectrograms)  # (batch, time, n_class)
-            print(output.shape)
             output = F.log_softmax(output, dim=2)
             output = output.transpose(0, 1) # (time, batch, n_class)
 
