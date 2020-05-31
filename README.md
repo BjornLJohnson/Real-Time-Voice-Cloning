@@ -1,25 +1,25 @@
-# Speech-To-Speech-Synthesis
+# Speech-To-Speech-Synthesis (ECE 228 Project)
 
 ## Set Up:
 * Create virtual environment w/ Python 3.7 (3.8 does NOT work)
-* Install requirements (Note: I was using my mac and could not get tensorflow-gpu, try tensorflow==1.14 if not working)
+* Install requirements
     ```
-    pip install requirements.txt
+    pip install -r requirements.txt
     ```
-* Install pytorch (needs to be CUDA enabled)
 * Create a jupyter notebook kernel for this environment (make sure virtual environment is active)
     ```
     ipython3 kernel install --user --name=STSSN
     ```
 * Download [pretrained models] and place "saved_models" folders into synthesizer/encoder/vocoder directories
-* Download [LibriSpeech Dataset](http://www.openslr.org/resources/12/train-clean-100.tar.gz), unzip into <datasets_root>
-* Run toolbox script for interactive gui, or one of the other script options (most streamlined is through STSSN_inference notebook)
+* Get pretrained deepspeech model file from Bjorn
+* Download [LibriSpeech Dataset](http://www.openslr.org/resources/12/train-clean-100.tar.gz), unzip into directory <datasets_root>
+* Run toolbox script for interactive gui, or one of the other script options (most streamlined is through STSSN_Speech_Text_Speech notebook)
     ```python
     python demo_toolbox.py -d <datasets_root>
     ```
-* Record a segment of your own voice and generate new speech from text
+* Record a segment of your own voice and generate new speech from this and any of the dataset files
 
-# Real-Time Voice Cloning
+# Real-Time Voice Cloning (Original Forked Repository)
 This repository is an implementation of [Transfer Learning from Speaker Verification to
 Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf) (SV2TTS) with a vocoder that works in real-time. Feel free to check [my thesis](https://matheo.uliege.be/handle/2268.2/6801) if you're curious or if you're looking for info I haven't documented. Mostly I would recommend giving a quick look to the figures beyond the introduction.
 
