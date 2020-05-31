@@ -14,3 +14,5 @@ PyQt5
 multiprocess
 numba
 ipython
+torch==1.4.0
+torchaudio==0.4.0
