@@ -20,3 +20,4 @@ synthesizer/saved_models/*
 vocoder/saved_models/*
 contentEncoder/saved_models/*
 notes.txt
+data/*
