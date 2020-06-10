@@ -42,7 +42,67 @@ def load_model(model_path=None, save_model_path=None, batch_size=8):
 
     print(_model)
     print('Num Model Parameters', sum([param.nelement() for param in _model.parameters()]))
+#     print_state_dict(_model)
+#     list_children()
 
+def load_encoder(model_path=None, save_model_path=None, batch_size=8):
+    global _model, _device, _hparams, _use_cuda
+    _use_cuda = torch.cuda.is_available()
+    _device = torch.device("cuda" if _use_cuda else "cpu")
+    warm_start=True
+
+    _hparams = {
+        "n_cnn_layers": 3,
+        "n_rnn_layers": 5,
+        "rnn_dim": 512,
+        "n_class": 29,
+        "n_feats": 128,
+        "stride":2,
+        "dropout": 0.1,
+        "learning_rate": 5e-4,
+        "batch_size": batch_size,
+        "epochs": 10,
+        "save_model_path": save_model_path
+    }
+
+    _model = ds.SpeechEncoder(
+    _hparams['n_cnn_layers'], _hparams['n_rnn_layers'], _hparams['rnn_dim'],
+    _hparams['n_class'], _hparams['n_feats'], _hparams['stride'], _hparams['dropout']
+    ).to(_device)
+
+    if model_path is not None:
+        _model.load_state_dict(torch.load(model_path), strict=False)
+
+    print(_model)
+    print('Num Model Parameters', sum([param.nelement() for param in _model.parameters()]))
+#     print_state_dict(_model)
+#     list_children()
+    
+def list_children():
+    global _model
+    for child in _model.children():
+        print(child)
+        for param in child.parameters():
+            print(param)
+            break
+#         break
+
+def print_state_dict(model):
+    # Print model's state_dict
+    print("Model's state_dict:")
+    for param_tensor in model.state_dict():
+        print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+    
+    
+def truncate_model(truncated_file_path=None):
+    global _model, _device
+    
+    _model = nn.Sequential(*list(_model.children())[:-1]).to(_device)
+    
+    if truncated_file_path is not None:
+        _model.load_state_dict(torch.load(truncated_file_path))
+
+    
 def train():
     global _model, _device, _hparams, _use_cuda
 
@@ -101,5 +161,20 @@ def generate_text(input_file_path):
     output = F.log_softmax(output, dim=2)
     
     return str(ds.GreedyDecoderInference(output))
+
+def encode(input_file_path):
+    global _model, _device, _hparams, _use_cuda
+
+    if _model is None:
+        raise Exception("Model was not loaded, call load_model() and truncate_model() before encoding")
+
+    waveform, sample_rate = torchaudio.load(input_file_path, normalization=True)
+    input_data = [[waveform, None, None, None, None, None]]
+    input_layer = ds.data_processing(input_data, 'infer')
+
+    _model.eval()
+    output=_model(input_layer[0].to(_device))
+    
+    return output
 
 
