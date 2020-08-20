@@ -90,7 +90,7 @@ class LibriStyle(Dataset):
 
     def __getitem__(self, n):
         fileid = self._walker[n]
-        return load_libristyle_item(fileid, self._path, self._ext_audio, self._ext_txt)
+        return load_libristyle_item(fileid, self._path, self._ext_audio, self._ext_embed)
 
     def __len__(self):
         return len(self._walker)

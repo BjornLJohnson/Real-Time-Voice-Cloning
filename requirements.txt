@@ -12,7 +12,8 @@ Unidecode
 inflect
 PyQt5
 multiprocess
-numba
+numba==0.49.1
 ipython
 torch==1.4.0
 torchaudio==0.4.0
+ipykernel
